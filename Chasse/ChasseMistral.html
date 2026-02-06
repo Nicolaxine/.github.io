@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Chasse au Trésor - 18 ans !</title>
+
+  <!-- Utilisation des dernières versions stables -->
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ar.js@3.4.0/aframe/build/aframe-ar-nft.min.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #000;
+      color: white;
+      overflow: hidden;
+    }
+
+    #ui-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    .centered-ui {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      pointer-events: auto;
+    }
+
+    .bottom-bar {
+      position: absolute;
+      bottom: 10px;
+      width: 100%;
+      text-align: center;
+      pointer-events: auto;
+    }
+
+    .error-message {
+      color: red;
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Interface utilisateur -->
+  <div id="ui-overlay">
+    <div class="centered-ui">
+      <h1>Chasse au Trésor</h1>
+      <p>Pointe ta caméra vers un marqueur pour commencer !</p>
+      <div id="error-container" class="error-message"></div>
+    </div>
+  </div>
+
+  <!-- Scène AR -->
+  <a-scene
+    embedded
+    arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"
+    vr-mode-ui="enabled: false"
+  >
+    <!-- Exemple de marqueur NFT -->
+    <a-nft
+      type="nft"
+      url="https://raw.githubusercontent.com/trevorfsmith/NFT-Markers/master/patterns/pattern-hiro.patt"
+      smooth="true"
+      smoothCount="10"
+      smoothTolerance="0.01"
+      smoothThreshold="5"
+    >
+      <!-- Modèle 3D à afficher -->
+      <a-entity
+        position="0 0 0"
+        scale="0.5 0.5 0.5"
+        gltf-model="url(https://raw.githubusercontent.com/KhronosGroup/glTF-Sample-Models/master/2.0/Duck/glTF/Duck.gltf)"
+        animation="property: rotation; to: 0 360 0; loop: true; dur: 10000"
+      ></a-entity>
+    </a-nft>
+
+    <!-- Caméra -->
+    <a-entity camera></a-entity>
+  </a-scene>
+
+  <!-- Script pour gérer les erreurs -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const errorContainer = document.getElementById('error-container');
+
+      // Vérifie si A-Frame est chargé
+      if (typeof AFRAME === 'undefined') {
+        errorContainer.textContent = "Erreur : A-Frame n'est pas chargé.";
+      }
+
+      // Vérifie si AR.js est chargé
+      if (typeof ARjs === 'undefined') {
+        errorContainer.textContent = "Erreur : AR.js n'est pas chargé.";
+      }
+    });
+  </script>
+</body>
+</html>
