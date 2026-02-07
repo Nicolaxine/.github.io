@@ -5,206 +5,43 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Chasse au Trésor - 18 ans !</title>
   
-  <!-- A-Frame et AR.js via CDN -->
   <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
   <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
 
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #000;
-      color: white;
-      overflow: hidden;
-    }
-
+    body { margin: 0; padding: 0; font-family: Arial, sans-serif; background: #000; color: white; overflow: hidden; }
+    
     #ui-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      pointer-events: none;
-      z-index: 10;
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10;
     }
-
     .centered-ui {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      pointer-events: auto;
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; pointer-events: auto;
     }
-
     .bottom-bar {
-      position: absolute;
-      bottom: 20px;
-      left: 0;
-      right: 0;
-      text-align: center;
-      font-size: 1.2em;
-      text-shadow: 2px 2px 4px #000;
+      position: absolute; bottom: 20px; left: 0; right: 0; text-align: center; font-size: 1.2em; text-shadow: 2px 2px 4px #000;
     }
-
-
-	
-	#ar-container {
-  position: relative;
-  overflow: hidden;
-  background: #111; /* fallback si vidéo rate */
-}
-
-#ar-container video {   /* le <video> que AR.js injecte */
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;    /* pour remplir sans déformer */
-  z-index: 1;
-}
-
-#ar-container canvas {   /* le canvas A-Frame */
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 2;
-  background: transparent !important;
-}
-
-    h2 {
-      margin: 0 0 20px;
-      font-size: 2em;
-      text-shadow: 3px 3px 6px #000;
+    
+    #ar-container {
+      width: 90%; max-width: 520px; height: 60vh; margin: 20px auto;
+      border: 4px solid #00ff88; border-radius: 16px; overflow: hidden;
+      box-shadow: 0 0 25px rgba(0, 255, 136, 0.7); position: relative; background: #111;
     }
-
-    p {
-      font-size: 1.3em;
-      margin: 15px 10px;
-      text-shadow: 1px 1px 4px #000;
+    
+    #ar-container video, #ar-container canvas {
+      position: absolute !important; top: 0; left: 0; width: 100% !important; height: 100% !important;
+      object-fit: cover; z-index: 1; background: transparent !important;
     }
-
-    button {
-      padding: 14px 30px;
-      font-size: 1.2em;
-      background: rgba(0, 180, 255, 0.85);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-    }
-
-    button:hover {
-      background: rgba(0, 220, 255, 0.95);
-    }
+    
+    h2 { margin: 0 0 20px; font-size: 2em; text-shadow: 3px 3px 6px #000; }
+    p { font-size: 1.3em; margin: 15px 10px; text-shadow: 1px 1px 4px #000; }
+    button { padding: 12px 24px; font-size: 1.2em; background: rgba(0,180,255,0.85); color: white; border: none; border-radius: 12px; cursor: pointer; }
   </style>
 </head>
 <body>
 
-  <!-- Overlay avec instructions et interactions -->
+  <!-- Overlay UI -->
   <div id="ui-overlay">
     <div class="centered-ui">
       <h2>Chasse au Trésor<br>Joyeux 18 ans ! 🎉</h2>
-      <p>Active la localisation GPS et explore le jardin.<br>Approche-toi des indices virtuels pour les découvrir !</p>
-      
-      <button onclick="alert('Indice actuel : Regarde bien autour du grand arbre !');">
-        Voir l'indice actuel
-      </button>
-    </div>
-
-    <div class="bottom-bar">
-      Étape <span id="step">1</span>/3 – Distance estimée : <span id="distance">...</span>
-    </div>
-  </div>
-
-  <!-- Conteneur centré pour la vue AR réduite -->
-  <div id="ar-container">
-<a-scene 
-    embedded 
-    arjs="sourceType: webcam; 
-          videoTexture: true; 
-          debugUIEnabled: true; 
-          sourceWidth: 1280; 
-          sourceHeight: 720; 
-          displayWidth: 100%; 
-          displayHeight: 100%; 
-          trackingMethod: best;"
-    vr-mode-ui="enabled: false"
-    style="width: 100%; height: 100%; position: absolute; top: 0; left: 0;"
-  >
-    <a-camera gps-camera rotation-reader></a-camera>
-
-      <!-- Exemple d'énigme 1 : près de l'entrée -->
-      <a-entity 
-        gps-entity-place="latitude: 44.8299316; longitude: 0.1447571;" 
-        scale="3 3 3" 
-        look-at="[gps-camera]"
-      >
-        <a-sphere color="red" radius="1.2"></a-sphere>
-        <a-text 
-          value="Indice 1 : Cherche sous le grand chêne !" 
-          color="white" 
-          position="0 1.8 0" 
-          align="center" 
-          width="6"
-        ></a-text>
-      </a-entity>
-
-      <!-- Exemple d'énigme 2 : sous le chêne -->
-      <a-entity 
-        gps-entity-place="latitude: 47.123789; longitude: -1.234789;" 
-        scale="4 4 4" 
-        look-at="[gps-camera]"
-      >
-        <a-cylinder color="green" radius="1" height="2.5"></a-cylinder>
-        <a-text 
-          value="Indice 2 : Direction le vieux banc !" 
-          color="black" 
-          position="0 2.2 0" 
-          align="center" 
-          width="7"
-        ></a-text>
-      </a-entity>
-
-      <!-- Trésor final : près du banc -->
-      <a-entity 
-        gps-entity-place="latitude: 47.124012; longitude: -1.235012;" 
-        scale="5 5 5" 
-        look-at="[gps-camera]"
-        click-handler
-      >
-        <a-box color="gold" depth="2" height="2" width="2"></a-box>
-        <a-text 
-          value="FÉLICITATIONS ! Le trésor est là !" 
-          color="blue" 
-          position="0 2.5 0" 
-          align="center" 
-          width="8"
-        ></a-text>
-      </a-entity>
-    </a-scene>
-  </div>
-
-  <!-- JavaScript pour interactions -->
-  <script>
-    // Composant clic sur le trésor
-    AFRAME.registerComponent('click-handler', {
-      init: function () {
-        this.el.addEventListener('click', function () {
-          alert('Bravo ! Le cadeau est caché juste ici dans le jardin ! 🎁');
-          // Tu peux ajouter : document.getElementById('step').textContent = 'FIN';
-        });
-      }
-    });
-
-    // Optionnel : mise à jour dynamique de la barre (à développer si tu veux)
-    // Pour l'instant statique, mais tu peux ajouter du JS pour calculer la distance réelle via GPS
-  </script>
-
-</body>
-</html>
+      <p>Bouge-toi un peu pour que le GPS se cale.<br>La sphère rouge devrait apparaître juste devant toi !</p>
+      <button onclick="alert('Test AR : La sphère rouge est un test fixe. Les vrais indices
