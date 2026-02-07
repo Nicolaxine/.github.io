@@ -43,5 +43,73 @@
   <div id="ui-overlay">
     <div class="centered-ui">
       <h2>Chasse au Trésor<br>Joyeux 18 ans ! 🎉</h2>
-      <p>Bouge-toi un peu pour que le GPS se cale.<br>La sphère rouge devrait apparaître juste devant toi !</p>
-      <button onclick="alert('Test AR : La sphère rouge est un test fixe. Les vrais indices
+      <p>Bouge un peu pour que le GPS se cale.<br>Une petite sphère rouge devrait apparaître juste devant toi (test fixe) !</p>
+      
+      <button onclick="alert('Test AR OK ? La sphère rouge fixe est visible ? Les indices GPS apparaissent quand tu es proche !');">
+        Vérifier le test
+      </button>
+    </div>
+
+    <div class="bottom-bar">
+      Étape 1/3 – Distance estimée : <span id="distance">...</span>
+    </div>
+  </div>
+
+  <!-- Conteneur AR -->
+  <div id="ar-container">
+    <a-scene 
+      embedded 
+      arjs="sourceType: webcam; 
+            videoTexture: true; 
+            debugUIEnabled: true; 
+            sourceWidth: 1280; 
+            sourceHeight: 720; 
+            trackingMethod: best;"
+      vr-mode-ui="enabled: false"
+      style="width: 100%; height: 100%; position: absolute; top: 0; left: 0;"
+    >
+      <!-- Caméra GPS -->
+      <a-camera gps-camera rotation-reader></a-camera>
+
+      <!-- TEST SIMPLE : Sphère rouge fixe, petite, juste devant toi (pas besoin de GPS) -->
+      <a-entity position="0 0 -3" scale="0.5 0.5 0.5">
+        <a-sphere color="red" radius="0.4"></a-sphere>
+        <a-text 
+          value="TEST AR - Sphère rouge fixe" 
+          color="white" 
+          position="0 0.6 0" 
+          align="center" 
+          width="4"
+        ></a-text>
+      </a-entity>
+
+      <!-- Exemple d'indice GPS (petit, ajuste les coordonnées réelles de ton jardin) -->
+      <a-entity 
+        gps-entity-place="latitude: 47.2184; longitude: -1.5536;"  <!-- ← Mets tes vraies coordonnées ici ! -->
+        scale="1 1 1" 
+        look-at="[gps-camera]"
+      >
+        <a-sphere color="#ff8800" radius="0.6"></a-sphere>  <!-- Orange, petite -->
+        <a-text 
+          value="Indice 1 - Cherche ici !" 
+          color="white" 
+          position="0 1 0" 
+          align="center" 
+          width="5"
+        ></a-text>
+      </a-entity>
+
+      <!-- Tu peux en ajouter d'autres avec des coordonnées différentes -->
+    </a-scene>
+  </div>
+
+  <!-- Petit JS pour debug (optionnel) -->
+  <script>
+    // Affiche un message si la sphère fixe est cliquée (tap sur mobile)
+    document.querySelector('a-sphere[color="red"]').addEventListener('click', () => {
+      alert('Sphère rouge touchée ! L\'AR fonctionne bien.');
+    });
+  </script>
+
+</body>
+</html>
