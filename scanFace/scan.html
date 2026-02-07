@@ -119,11 +119,89 @@
       0%, 100% { opacity: 1; }
       50% { opacity: 0.5; }
     }
+	
+			.footer-back-btn {
+	width: 40px;
+	height: 40px;
+	padding: 0;
+	margin: 0;
+	font-size: 1.4rem;
+	line-height: 1;
+	align-items: center;
+	justify-content: center;
+	background: #1f2430;
+	color: var(--text);
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: all 0.2s;
+	min-width: unset;
+}
+
+.footer-back-btn:hover {
+	background: #2a3242;
+}
+	
+		#btn-fullscreen {
+	width: 40px;
+	height: 40px;
+	padding: 0;
+	margin: 0;
+	font-size: 1.4rem;
+	align-items: center;
+	justify-content: center;
+	background: #1f2430;
+	color: var(--text);
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: all 0.2s;
+	min-width: unset;
+	}
+
+	#btn-fullscreen:hover {
+	background: #2a3242;
+	}
+
+	#btn-fullscreen:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+	}
+
+	#btn-refresh {
+	width: 40px;
+	height: 40px;
+	padding: 0;
+	margin: 0;
+	font-size: 1.4rem;
+	line-height: 1;
+	align-items: center;
+	justify-content: center;
+	background: #1f2430;
+	color: var(--text);
+	border: none;
+	border-radius: 6px;
+	cursor: pointer;
+	transition: all 0.2s;
+	min-width: unset;
+	}
+
+	#btn-refresh:hover {
+	background: #2a3242;
+	}
+
+	#btn-refresh:disabled {
+	opacity: 0.4;
+	cursor: not-allowed;
+	}
   </style>
 </head>
 <body>
 
-  <header>BOXON DE NICOLAXINE — IDENTIFICATION v7.2</header>
+  <header><button id="btn-fullscreen">💻</button>BOXON DE NICOLAXINE — IDENTIFICATION v7.2
+    <button id="btn-refresh" onclick="window.location.href = window.location.pathname + '?refresh=' + Date.now()">🖲️</button>
+  <button class="footer-back-btn" id="btn-retour-footer">↩️</button>
+  </header>
 
   <div class="container">
     <video id="video" autoplay playsinline muted></video>
@@ -145,7 +223,7 @@
     let usingFront = true;
     let detectionCount = 0;
     const DETECTION_THRESHOLD = 25; // ~4 secondes à 150ms/frame
-    const REDIRECT_URL = "http://freenicox.free.fr/Nicolaxine/App_Digicode.html"; // ← change selon besoin
+    const REDIRECT_URL = "http://freenicox.free.fr/Nicolaxine/App_Nicolaxine/Carte_Portail_Tri-DimensionnelLoc.html"; // ← change selon besoin
 
     // Chemin local des weights
     const weightsPath = '.';
@@ -269,6 +347,15 @@
         video: { facingMode: usingFront ? "user" : "environment" }
       }).then(stream => video.srcObject = stream);
     });
+	
+			document.getElementById('btn-fullscreen').onclick = () => {
+    if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+    else document.exitFullscreen();
+		};
+		
+		  document.getElementById('btn-retour-footer').onclick = () => {
+  // Option 1 : Retour historique (comme le bouton back du navigateur)
+			history.back();
   </script>
 </body>
 </html>
