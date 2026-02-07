@@ -7,10 +7,7 @@
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#0a0c11">
-  <title>NICOLAXINE — LECTEUR DE BADGE v2</title>
-
-  <!-- Tesseract.js pour reconnaissance texte (OCR) -->
-  <script src="https://unpkg.com/tesseract.js@v5.1.0/dist/tesseract.min.js"></script>
+  <title>NICOLAXINE — LECTEUR DE BADGE</title>
 
   <style>
     :root {
@@ -123,13 +120,13 @@
 </head>
 <body>
 
-  <header>NICOLAXINE — LECTEUR DE BADGE SÉCURISÉ v2</header>
+  <header>NICOLAXINE — LECTEUR DE BADGE SÉCURISÉ</header>
 
   <div class="container">
     <video id="video" autoplay playsinline muted></video>
     <canvas id="overlay"></canvas>
     <div id="scan-bar"></div>
-    <div id="info">PRÉSENTEZ VOTRE BADGE</div>
+    <div id="info">PRÉSENTEZ VOTRE BADGE DEVANT LA CAMÉRA</div>
     <div id="overlay-message">ACCÈS AUTORISÉ</div>
   </div>
 
@@ -138,24 +135,8 @@
     const info = document.getElementById('info');
     const overlayMsg = document.getElementById('overlay-message');
 
-    let worker = null;
-
-    // Initialiser Tesseract (reconnaissance texte)
-    async function initTesseract() {
-      worker = await Tesseract.createWorker('fra', 1, {
-        workerPath: 'https://unpkg.com/tesseract.js@v5.1.0/dist/worker.min.js',
-        langPath: 'https://tessdata.projectnaptha.com/4.0.0',
-        corePath: 'https://unpkg.com/tesseract.js-core@v5.1.0/tesseract-core.wasm.js',
-      });
-      info.textContent = "LECTEUR PRÊT — PRÉSENTEZ BADGE";
-    }
-
-    // Démarrer caméra
     navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
-      .then(stream => {
-        video.srcObject = stream;
-        initTesseract(); // lance Tesseract en parallèle
-      })
+      .then(stream => video.srcObject = stream)
       .catch(err => info.textContent = "Caméra refusée : " + err.message);
 
     video.addEventListener('play', () => {
@@ -164,57 +145,42 @@
       canvas.height = video.videoHeight || 480;
       const ctx = canvas.getContext('2d');
 
-      setInterval(async () => {
+      setInterval(() => {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-        // Zone centrale (rectangle au milieu)
-        const sampleSize = 180;
+        // Zone centrale d'analyse (rectangle au milieu)
+        const sampleSize = 120;
         const centerX = Math.floor(canvas.width / 2);
         const centerY = Math.floor(canvas.height / 2);
-        const roi = ctx.getImageData(centerX - sampleSize/2, centerY - sampleSize/2, sampleSize, sampleSize);
+        const imageData = ctx.getImageData(centerX - sampleSize/2, centerY - sampleSize/2, sampleSize, sampleSize).data;
 
-        // 1. Détection couleur dominante (comme avant)
         let greenScore = 0;
         let yellowScore = 0;
-        const data = roi.data;
 
-        for (let i = 0; i < data.length; i += 4) {
-          const r = data[i];
-          const g = data[i+1];
-          const b = data[i+2];
+        for (let i = 0; i < imageData.length; i += 4) {
+          const r = imageData[i];
+          const g = imageData[i+1];
+          const b = imageData[i+2];
 
+          // Vert Heegrek : vert dominant, peu de rouge/bleu
           if (g > 140 && g > r * 1.4 && g > b * 1.4) greenScore++;
+          // Jaune Hiksse : jaune/orangé, rouge et vert équilibrés, bleu faible
           if (r > 170 && g > 150 && Math.abs(r - g) < 70 && b < 130) yellowScore++;
         }
 
         const total = sampleSize * sampleSize;
-        const greenPct = greenScore / total;
-        const yellowPct = yellowScore / total;
 
-        // 2. Si couleur suffisante → on tente OCR sur la zone centrale
-        let ocrText = "";
-        if (greenPct > 0.25 || yellowPct > 0.25) {
-          try {
-            const { data: { text } } = await worker.recognize(roi);
-            ocrText = text.toUpperCase().trim();
-            console.log("Texte détecté :", ocrText);
-          } catch (err) {
-            console.error("OCR échoué :", err);
-          }
-        }
-
-        // 3. Décision finale : couleur + texte
-        if ((greenPct > 0.25 && ocrText.includes("PROCESSEUR HEEGREK")) || ocrText.includes("PROFESSEUR HEEGREGK")) {
-          info.textContent = "BADGE DÉTECTÉ — PR. HEEGREK — NIVEAU 4";
+        if (greenScore / total > 0.30) {
+          info.textContent = "BADGE DÉTECTÉ — PR. HEEGREGK — NIVEAU 4";
           info.style.color = 'var(--vert-heegrek)';
           showAuthorized("PR. HEEGREGK — ACCÈS NIVEAU 4 CONFIRMÉ", 'var(--vert-heegrek)');
         }
-        else if ((yellowPct > 0.25 && ocrText.includes("DOCTEUR HIKSSE")) || ocrText.includes("DOCTEUR HIKSSE")) {
-          info.textContent = "BADGE DÉTECTÉ — DR. HIKSSE — NIVEAU 3";
+        else if (yellowScore / total > 0.30) {
+          info.textContent = "BADGE DÉTECTÉ — DR. HIKSKSSE — NIVEAU 3";
           info.style.color = 'var(--jaune-hiksse)';
           showAuthorized("DR. HIKSKSSE — ACCÈS NIVEAU 3 CONFIRMÉ", 'var(--jaune-hiksse)');
         }
-      }, 800); // 800ms pour ne pas surcharger OCR
+      }, 400);
     });
 
     function showAuthorized(message, color) {
